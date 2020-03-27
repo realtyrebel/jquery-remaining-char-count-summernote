@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Summernote</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.16/dist/summernote.min.js"></script>
+  <style>
+	.charcount {
+		display: block;
+		text-align: right;
+		font-size: 12px;
+		color: #666;
+	}
+ </style>
+</head>
+<body>
+
+<div style="width: 600px; margin: 50px;">
+	<h4 style="margin-top: 30px;">Textarea with limit 10</h4>
+	<textarea name="test1" class="summernote" data-limit="10" cols=40 rows=10><p>1234567891</p></textarea>
+	
+	<h4 style="margin-top: 30px;">Textarea with limit 50</h4>
+	<textarea name="test2" class="summernote" data-limit="50" cols=40 rows=10><p>Hello Summernote</p></textarea>
+  
+	<h4 style="margin-top: 30px;">Textarea with limit 100</h4>
+	<textarea name="test3" class="summernote" data-limit="100" cols=40 rows=10><p>Hello Summernote 2</p></textarea>
+  
+	<h4 style="margin-top: 30px;">Textarea with no limit</h4>
+	<textarea name="test4" class="summernote" cols=40 rows=10><p>Hello  </p></textarea>
+
+</div>
+ 
+  <script>
+    $(document).ready(function() {
+        $('.summernote').summernote({
+			height: "200",
+			callbacks: {
+				onKeydown: function (e) {
+					// get value of textarea data-limit variable
+					var limit = parseInt($(this).data('limit'));
+					if(!limit){
+						return true;
+					}
+					
+					var text = e.currentTarget.innerText;
+					//if (text.trim().length >= 400) {
+					if (text.length >= limit) {//if 
+						//delete keys, arrow keys, copy, cut, select all
+						if (e.keyCode != 8 && !(e.keyCode >=37 && e.keyCode <=40) && e.keyCode != 46 && !(e.keyCode == 88 && e.ctrlKey) && !(e.keyCode == 67 && e.ctrlKey) && !(e.keyCode == 65 && e.ctrlKey)) {
+							e.preventDefault();
+						}
+					}
+				},				
+				
+				onKeyup: function (e) {
+					// get value of textarea data-limit variable
+					var limit = parseInt($(this).data('limit'));
+					if(!limit){
+						return true;
+					}
+					
+					var text = e.currentTarget.innerText;
+					var totalCharacters = text.length;
+					var counterContainerId = 'counter_for_' + $(this).attr('name');
+					var counterElement = $('#' + counterContainerId);
+					
+					if(!counterElement.length){//if counterElement doesn't exist
+						counterElement = $('<span>',{id: counterContainerId, class: 'charcount'});
+						$(this).next().after(counterElement);
+					}
+					
+					counterElement.text((limit - totalCharacters) + ' characters remaining');
+				},
+				
+				onPaste: function (e) {
+					// get value of textarea data-limit variable
+					var limit = parseInt($(this).data('limit'));
+					if(!limit){
+						return true;
+					}
+					
+					var text = e.currentTarget.innerText;
+					var totalCharacters = text.length;
+					var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+					e.preventDefault();
+					var maxPaste = bufferText.length;
+					//if(text.length + bufferText.length > 400){
+					if(totalCharacters + bufferText.length > limit){
+						//maxPaste = 400 - text.length;
+						maxPaste = limit - totalCharacters;
+					}
+					if(maxPaste > 0){
+						document.execCommand('insertText', false, bufferText.substring(0, maxPaste));
+					}
+					
+					//$('.maxContentPost').text(limit - totalCharacters);
+					var counterContainerId = 'counter_for_' + $(this).attr('name');
+					var counterElement = $('#' + counterContainerId);
+					
+					if(!counterElement.length){//if counterElement doesn't exist
+						counterElement = $('<span>',{id: counterContainerId, class: 'charcount'});
+						$(this).next().after(counterElement);
+					}
+					
+					counterElement.text((limit - totalCharacters) + ' characters remaining');
+				}
+				
+			}					
+		});
+	});
+  </script>
+ 
+</body>
+</html>
